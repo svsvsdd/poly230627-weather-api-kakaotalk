@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<script>
+
+    curl -v -X POST "https://kapi.kakao.com/v2/api/talk/memo/default/send" \
+    -H "Content-Type: application/x-www-form-urlencoded" \
+    -H "Authorization: Bearer g9CejqshLXFl1dQc3frhLwq4f-ZkBzH1TVVZYENFCj11nAAAAYkFwN3H" \
+    --data-urlencode 'template_object={
+        "object_type": "text",
+        "text": "텍스트 영역입니다. 최대 200자 표시 가능합니다.",
+        "link": {
+            "web_url": "https://developers.kakao.com",
+            "mobile_web_url": "https://developers.kakao.com"
+        },
+        "button_title": "바로 확인"
+    }'
+
+</script>
+<body>
+    
+</body>
+</html>

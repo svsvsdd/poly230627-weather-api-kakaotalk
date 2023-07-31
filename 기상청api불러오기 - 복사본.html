@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>기상청API</title>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+
+    <SCRIPT>
+        
+
+
+
+
+
+        // $(function() {
+            
+            // calBase 변수 초기화 (예시로 현재 시간 사용)
+        var calBase = new Date();
+        calBase = getLastBaseTime(calBase);
+            console.log(calBase)
+
+        var datetime00 = (calBase.getFullYear().toString() + (calBase.getMonth() + 1).toString().padStart(2, '0') + calBase.getDate().toString() + ((calBase.getHours()).toString().padStart(2, '0') + '00'));
+        console.log(datetime00)
+        var datetime01 = (calBase.getFullYear().toString() + (calBase.getMonth() + 1).toString().padStart(2, '0') + calBase.getDate().toString() + ((calBase.getHours()+1).toString().padStart(2, '0') + '00'));
+        console.log(datetime01)
+        var datetime02 = (calBase.getFullYear().toString() + (calBase.getMonth() + 1).toString().padStart(2, '0') + calBase.getDate().toString() + ((calBase.getHours()+2).toString().padStart(2, '0') + '00'));
+        console.log(datetime02)
+        var datetime03 = (calBase.getFullYear().toString() + (calBase.getMonth() + 1).toString().padStart(2, '0') + calBase.getDate().toString() + ((calBase.getHours()+3).toString().padStart(2, '0') + '00'));
+        console.log(datetime03)
+
+
+        var datePart0 = datetime00.substr(0, 8);  // "YYYYMMDD"
+        var timePart0 = datetime00.substr(8, 4);  // "HH00"
+        var datePart1 = datetime01.substr(0, 8);  // "YYYYMMDD"
+        var timePart1 = datetime01.substr(8, 4);  // "HH00"
+        var datePart2 = datetime02.substr(0, 8);  // "YYYYMMDD"
+        var timePart2 = datetime02.substr(8, 4);  // "HH00"
+        var datePart3 = datetime03.substr(0, 8);  // "YYYYMMDD"
+        var timePart3 = datetime03.substr(8, 4);  // "HH00"
+
+
+        function getLastBaseTime(calBase) {
+            var t = calBase.getHours();
+            if (t < 2) {
+                calBase.setDate(calBase.getDate() - 1);
+                calBase.setHours(23);
+            } else {
+                calBase.setHours(t - (t + 1) % 3);
+            }
+            return calBase;
+        }
+
+
+        
+
+
+        var xhr = new XMLHttpRequest();
+        var url = 'http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst'; /*URL*/
+        var queryParams = '?' + encodeURIComponent('serviceKey') + '='+'pfwPJqSsq35REx9xZhUJmvGHVuFCPWyLXHFabpDm0vvuJWJOKBauTxCFCektk6tHTTEwHUnoGB%2F9gek1IyD9ww%3D%3D'; /*Service Key*/
+        queryParams += '&' + encodeURIComponent('pageNo') + '=' + encodeURIComponent('1'); /**/
+        queryParams += '&' + encodeURIComponent('numOfRows') + '=' + encodeURIComponent('1000'); /**/
+        queryParams += '&' + encodeURIComponent('dataType') + '=' + encodeURIComponent('JSON'); /**/
+
+        queryParams += '&' + encodeURIComponent('base_date') + '=' + encodeURIComponent(datePart0); /**/
+        queryParams += '&' + encodeURIComponent('base_time') + '=' + encodeURIComponent(timePart0); /**/
+
+        queryParams += '&' + encodeURIComponent('nx') + '=' + encodeURIComponent('62'); /**/
+        queryParams += '&' + encodeURIComponent('ny') + '=' + encodeURIComponent('123'); /**/
+        xhr.open('GET', url + queryParams);
+        xhr.onreadystatechange = function () {
+            if (this.readyState == 4) {
+                console.log('Status: '+this.status+'nHeaders: '+JSON.stringify(this.getAllResponseHeaders())+'nBody: '+this.responseText);
+
+                // console.log(JSON.stringify);
+                const responseText = this.responseText;
+                const parsedData = JSON.parse(responseText); // JSON 데이터 파싱
+
+
+                // parsedData 객체에서 필요한 정보 추출
+                const items = parsedData.response.body.items.item;
+
+                // category가 "POP"이고 fcstValue가 30 이상인 값을 필터링
+                const filteredItems = items.filter(item => ((item.fcstDate === datePart0 && item.fcstTime === timePart0) || (item.fcstDate === datePart1 && item.fcstTime === timePart1) || (item.fcstDate === datePart2 && item.fcstTime === timePart2) || (item.fcstDate === datePart3 && item.fcstTime === timePart3)) && item.category === "POP" && parseFloat(item.fcstValue) >= 30);
+
+                console.log(filteredItems);
+                // 필터링된 항목의 fcstValue 값 출력
+
+                filteredItems.forEach(item => {
+                console.log(item.fcstDate, item.fcstTime + "강수확률:" + item.fcstValue + "%");
+                });
+
+                // const outputDiv = document.getElementById("output");
+                // filteredItems.forEach(item => {
+                // const outputTextWeather = item.fcstDate + " " + item.fcstTime + " 강수확률:" + item.fcstValue + "%";
+                // outputDiv.innerHTML += outputTextWeather + "<br>";
+                // });
+
+                // const items = parsedData.response.body.items.item; // "item" 배열 추출
+
+                // const items = Array.isArray(parsedData.response.body.items)
+                // ? parsedData.response.body.items.item // "items"가 배열인 경우
+                // : [parsedData.response.body.items]; // "items"가 단일 객체인 경우에 배열로 감싸기
+
+                // const filteredItems = items.filter(item => item.category === 'POP' && item.fcstValue !== '0'); // "category"가 "POP"인 항목 필터링 (0% 아닌 강수확률)
+
+
+                // console.log(filteredItems); // 출력
+
+                // const slicedItems = filteredItems.slice(0, 3); // 처음 10개 항목 선택 - 10시간  3시간
+
+
+                // filteredItems.forEach(item => {
+                //     const 강수시간 = item.fcstTime;
+                //     const 강수확률 = item.fcstValue;
+                // console.log('강수시간:', 강수시간, '강수확률:', 강수확률);
+
+                // if (강수시간 == item.baseTime) {
+                //     document.write('현재 비오는중');
+                // } else {
+                //     document.write('안옴');
+                // }
+
+
+                // if (강수확률 < 20) {
+                //     document.write(강수시간, '안옴 ');
+                // } else {
+                //     document.write('비 ');
+                // }
+
+                // });
+            }
+        };
+
+        xhr.send(''); 
+    // });
+
+
+
+
+    </SCRIPT>
+
+
+</head>
+<body>
+    
+</body>
+</html>

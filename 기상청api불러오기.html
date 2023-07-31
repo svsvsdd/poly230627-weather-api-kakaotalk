@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>기상청API</title>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+
+    <SCRIPT>
+        
+
+
+
+
+
+        // $(function() {
+            
+            // calBase 변수 초기화 (예시로 현재 시간 사용)
+        var calBase = new Date();
+        calBase = getLastBaseTime(calBase);
+            console.log(calBase)
+
+        var date22 = (calBase.getFullYear().toString() + (calBase.getMonth() + 1).toString().padStart(2, '0') + calBase.getDate().toString());
+        console.log(date22)
+        var hour22 = (calBase.getHours().toString().padStart(2, '0') + '00');   
+        console.log(hour22)
+
+        function getLastBaseTime(calBase) {
+            var t = calBase.getHours();
+            if (t < 2) {
+                calBase.setDate(calBase.getDate() - 1);
+                calBase.setHours(23);
+            } else {
+                calBase.setHours(t - (t + 1) % 3);
+            }
+            return calBase;
+        }
+
+
+        
+
+
+        var xhr = new XMLHttpRequest();
+        var url = 'http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst'; /*URL*/
+        var queryParams = '?' + encodeURIComponent('serviceKey') + '='+'pfwPJqSsq35REx9xZhUJmvGHVuFCPWyLXHFabpDm0vvuJWJOKBauTxCFCektk6tHTTEwHUnoGB%2F9gek1IyD9ww%3D%3D'; /*Service Key*/
+        queryParams += '&' + encodeURIComponent('pageNo') + '=' + encodeURIComponent('1'); /**/
+        queryParams += '&' + encodeURIComponent('numOfRows') + '=' + encodeURIComponent('1000'); /**/
+        queryParams += '&' + encodeURIComponent('dataType') + '=' + encodeURIComponent('JSON'); /**/
+
+        queryParams += '&' + encodeURIComponent('base_date') + '=' + encodeURIComponent(date22); /**/
+        queryParams += '&' + encodeURIComponent('base_time') + '=' + encodeURIComponent(hour22); /**/
+
+        queryParams += '&' + encodeURIComponent('nx') + '=' + encodeURIComponent('62'); /**/
+        queryParams += '&' + encodeURIComponent('ny') + '=' + encodeURIComponent('123'); /**/
+        xhr.open('GET', url + queryParams);
+        xhr.onreadystatechange = function () {
+            if (this.readyState == 4) {
+                console.log('Status: '+this.status+'nHeaders: '+JSON.stringify(this.getAllResponseHeaders())+'nBody: '+this.responseText);
+
+                // console.log(JSON.stringify);
+                const responseText = this.responseText;
+                const parsedData = JSON.parse(responseText); // JSON 데이터 파싱
+
+                // const items = parsedData.response.body.items.item; // "item" 배열 추출
+
+                // const items = Array.isArray(parsedData.response.body.items)
+                // ? parsedData.response.body.items.item // "items"가 배열인 경우
+                // : [parsedData.response.body.items]; // "items"가 단일 객체인 경우에 배열로 감싸기
+
+                // const filteredItems = items.filter(item => item.category === 'POP' && item.fcstValue !== '0'); // "category"가 "POP"인 항목 필터링 (0% 아닌 강수확률)
+
+
+                // console.log(filteredItems); // 출력
+
+                // const slicedItems = filteredItems.slice(0, 3); // 처음 10개 항목 선택 - 10시간  3시간
+
+
+                // filteredItems.forEach(item => {
+                //     const 강수시간 = item.fcstTime;
+                //     const 강수확률 = item.fcstValue;
+                // console.log('강수시간:', 강수시간, '강수확률:', 강수확률);
+
+                // if (강수시간 == item.baseTime) {
+                //     document.write('현재 비오는중');
+                // } else {
+                //     document.write('안옴');
+                // }
+
+
+                // if (강수확률 < 20) {
+                //     document.write(강수시간, '안옴 ');
+                // } else {
+                //     document.write('비 ');
+                // }
+
+                // });
+            }
+        };
+
+        xhr.send(''); 
+    // });
+
+
+
+
+    </SCRIPT>
+
+
+</head>
+<body>
+    
+</body>
+</html>
